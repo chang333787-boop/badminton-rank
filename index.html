@@ -746,6 +746,22 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- 실시간 공유 저장소 (Firebase) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+  <script>
+    /* ▼▼▼ 여기에 Firebase 설정을 붙여넣으세요 (한 번만 하면 끝) ▼▼▼
+       databaseURL 까지 채워지면 모든 사람이 같은 랭킹을 실시간으로 공유합니다.
+       비워두면 지금처럼 각 기기에만 저장됩니다. */
+    window.FIREBASE_CONFIG = {
+      apiKey: "여기에-붙여넣기",
+      authDomain: "여기에-붙여넣기",
+      databaseURL: "여기에-붙여넣기",
+      projectId: "여기에-붙여넣기"
+    };
+    /* ▲▲▲ */
+  </script>
+
   <script>
     (() => {
       "use strict";
@@ -1052,8 +1068,12 @@
           const rightInput = document.getElementById(`score-${number}-right`);
           const result = getMatchState(index);
 
-          leftInput.value = state.scores[index].left;
-          rightInput.value = state.scores[index].right;
+          if (document.activeElement !== leftInput) {
+            leftInput.value = state.scores[index].left;
+          }
+          if (document.activeElement !== rightInput) {
+            rightInput.value = state.scores[index].right;
+          }
 
           card.classList.remove("is-complete", "is-next", "has-error");
 
@@ -1088,6 +1108,7 @@
       function saveState() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state.scores));
+          saveCloud();
           return true;
         } catch (error) {
           console.error("저장 실패:", error);
@@ -1111,6 +1132,60 @@
         } catch (error) {
           console.error("저장 기록 불러오기 실패:", error);
         }
+      }
+
+      let cloudRef = null;
+      let applyingRemote = false;
+
+      function cloudReady() {
+        const cfg = window.FIREBASE_CONFIG;
+        return (
+          typeof firebase !== "undefined" &&
+          cfg &&
+          typeof cfg.databaseURL === "string" &&
+          cfg.databaseURL.startsWith("http")
+        );
+      }
+
+      function initCloud() {
+        if (!cloudReady()) {
+          console.info("로컬 저장 모드 (Firebase 설정 없음)");
+          return;
+        }
+        try {
+          firebase.initializeApp(window.FIREBASE_CONFIG);
+          cloudRef = firebase.database().ref(STORAGE_KEY);
+          cloudRef.on("value", (snapshot) => {
+            const data = snapshot.val();
+            if (!Array.isArray(data) || data.length !== matches.length) return;
+            applyingRemote = true;
+            state.scores = data.map((item) => ({
+              left: normalizeScore(item && item.left),
+              right: normalizeScore(item && item.right)
+            }));
+            applyingRemote = false;
+            refresh();
+          });
+          showToast("실시간 공유에 연결되었습니다.");
+        } catch (error) {
+          console.error("실시간 공유 연결 실패:", error);
+          cloudRef = null;
+          showToast("실시간 공유 연결에 실패해 이 기기에만 저장됩니다.");
+        }
+      }
+
+      function saveCloud() {
+        if (!cloudRef || applyingRemote) return;
+        cloudRef
+          .set(
+            state.scores.map((item) => ({
+              left: item.left || "",
+              right: item.right || ""
+            }))
+          )
+          .catch((error) => {
+            console.error("실시간 저장 실패:", error);
+          });
       }
 
       function showToast(message) {
@@ -1192,6 +1267,7 @@
         } catch (error) {
           console.error("전체 초기화 실패:", error);
         }
+        saveCloud();
 
         refresh();
         showToast("모든 기록을 초기화했습니다.");
@@ -1236,6 +1312,7 @@
       createMatchCards();
       loadState();
       refresh();
+      initCloud();
     })();
   </script>
 </body>
