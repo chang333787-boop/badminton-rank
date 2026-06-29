@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>오늘 배드민턴 복식 대진표</title>
   <style>
     :root {
@@ -19,9 +19,14 @@
       --wait-line: #f59e0b;
       --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
       --radius: 18px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
@@ -29,12 +34,13 @@
       background: var(--bg);
       color: var(--ink);
       line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
     }
 
     .page {
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 0 auto;
-      padding: 24px 16px 80px;
+      padding: 24px 16px calc(90px + var(--safe-bottom));
     }
 
     header {
@@ -69,11 +75,14 @@
       border: 0;
       border-radius: 999px;
       padding: 10px 14px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
       color: var(--ink);
       background: #eef2ff;
       transition: transform 0.08s ease, filter 0.1s ease;
+      min-height: 42px;
+      touch-action: manipulation;
+      font-family: inherit;
     }
 
     button:active { transform: scale(0.98); }
@@ -92,7 +101,13 @@
     .btn-win-right {
       background: #dcfce7;
       color: #166534;
-      min-width: 100px;
+      min-width: 104px;
+    }
+
+    .btn-score {
+      background: #e0f2fe;
+      color: #075985;
+      min-width: 116px;
     }
 
     .btn-clear {
@@ -118,18 +133,19 @@
     .summary-card .label {
       color: var(--muted);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .summary-card .value {
       font-size: 28px;
-      font-weight: 900;
+      font-weight: 950;
       margin-top: 2px;
+      letter-spacing: -0.04em;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      grid-template-columns: 1fr 390px;
       gap: 18px;
       align-items: start;
     }
@@ -141,6 +157,7 @@
       padding: 18px;
       margin-bottom: 14px;
       box-shadow: var(--shadow);
+      scroll-margin-top: 12px;
     }
 
     .round-head {
@@ -159,7 +176,7 @@
 
     .round-status {
       color: var(--muted);
-      font-weight: 800;
+      font-weight: 900;
       font-size: 13px;
     }
 
@@ -181,7 +198,7 @@
       align-items: center;
       gap: 6px;
       font-size: 13px;
-      font-weight: 900;
+      font-weight: 950;
       color: var(--accent);
       background: var(--accent-soft);
       padding: 4px 9px;
@@ -193,38 +210,90 @@
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       gap: 10px;
-      align-items: center;
+      align-items: stretch;
       margin-bottom: 12px;
     }
 
-    .team {
+    .team-box {
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 16px;
       background: white;
-      padding: 12px 10px;
-      min-height: 72px;
-      display: flex;
+      padding: 10px;
+      min-height: 116px;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      gap: 8px;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-weight: 900;
-      word-break: keep-all;
     }
 
-    .team.winner {
+    .team-box.winner {
       border-color: #86efac;
       background: #f0fdf4;
       color: #14532d;
     }
 
-    .team.loser {
-      opacity: 0.58;
+    .team-box.loser {
+      opacity: 0.62;
+    }
+
+    .team-name {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 950;
+      word-break: keep-all;
+      line-height: 1.35;
+      min-height: 44px;
+    }
+
+    .score-input-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .score-input {
+      width: 78px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 950;
+      color: var(--ink);
+      background: #f9fafb;
+      font-family: inherit;
+      appearance: textfield;
+    }
+
+    .score-input:focus {
+      outline: 3px solid rgba(37, 99, 235, 0.18);
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .score-input::-webkit-outer-spin-button,
+    .score-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .score-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
     }
 
     .vs {
       color: var(--muted);
       font-size: 20px;
-      font-weight: 900;
+      font-weight: 950;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
     }
 
     .match-actions {
@@ -232,6 +301,13 @@
       gap: 8px;
       flex-wrap: wrap;
       justify-content: center;
+    }
+
+    .score-hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
     }
 
     .wait-box {
@@ -244,7 +320,7 @@
     }
 
     .wait-title {
-      font-weight: 900;
+      font-weight: 950;
       margin-bottom: 6px;
       color: #92400e;
     }
@@ -262,7 +338,7 @@
       padding: 4px 9px;
       background: white;
       border: 1px solid rgba(146, 64, 14, 0.18);
-      font-weight: 800;
+      font-weight: 850;
       font-size: 13px;
     }
 
@@ -286,12 +362,19 @@
       letter-spacing: -0.04em;
     }
 
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 14px;
-      overflow: hidden;
-      border-radius: 14px;
+      font-size: 13px;
+      min-width: 360px;
+      background: white;
     }
 
     th, td {
@@ -305,26 +388,33 @@
       color: var(--muted);
       font-size: 12px;
       background: #f9fafb;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
     }
 
     td.name {
       text-align: left;
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .rank {
-      font-weight: 900;
+      font-weight: 950;
       color: var(--accent);
     }
 
-    .score-plus { color: var(--win); font-weight: 900; }
-    .score-minus { color: var(--lose); font-weight: 900; }
-    .score-zero { color: var(--muted); font-weight: 900; }
+    .score-plus { color: var(--win); font-weight: 950; }
+    .score-minus { color: var(--lose); font-weight: 950; }
+    .score-zero { color: var(--muted); font-weight: 950; }
 
     .note {
       color: var(--muted);
       font-size: 13px;
-      margin-top: 10px;
+      margin: 10px 0 0;
     }
 
     .mini {
@@ -355,7 +445,7 @@
       border-radius: 999px;
       padding: 3px 8px;
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
     }
 
     .empty-badge {
@@ -366,10 +456,14 @@
       border-radius: 999px;
       padding: 3px 8px;
       font-size: 12px;
-      font-weight: 900;
+      font-weight: 950;
     }
 
-    @media (max-width: 900px) {
+    .mobile-bottom {
+      display: none;
+    }
+
+    @media (max-width: 960px) {
       .layout {
         grid-template-columns: 1fr;
       }
@@ -383,9 +477,9 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 680px) {
       .page {
-        padding: 12px 10px 60px;
+        padding: 12px 10px calc(90px + var(--safe-bottom));
       }
 
       header {
@@ -393,17 +487,82 @@
         padding: 20px 16px;
       }
 
+      header h1 {
+        font-size: 25px;
+      }
+
+      header p {
+        font-size: 14px;
+      }
+
+      .top-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .top-actions button {
+        width: 100%;
+        padding: 10px 8px;
+      }
+
       .court-grid {
         grid-template-columns: 1fr;
       }
 
+      .round {
+        padding: 14px;
+        border-radius: 20px;
+      }
+
+      .match {
+        padding: 12px;
+      }
+
       .teams {
         grid-template-columns: 1fr;
+        gap: 8px;
       }
 
       .vs {
-        text-align: center;
+        min-height: 18px;
+        font-size: 14px;
+      }
+
+      .team-box {
+        min-height: 90px;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: 1fr;
+        gap: 10px;
+      }
+
+      .team-name {
+        justify-content: flex-start;
+        text-align: left;
+        min-height: auto;
         font-size: 16px;
+      }
+
+      .score-input {
+        width: 70px;
+        height: 48px;
+        font-size: 24px;
+        border-radius: 14px;
+      }
+
+      .score-label {
+        display: none;
+      }
+
+      .match-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .match-actions .btn-score,
+      .match-actions .btn-clear {
+        grid-column: span 1;
       }
 
       .summary-grid {
@@ -413,15 +572,57 @@
 
       .summary-card {
         padding: 12px;
+        border-radius: 16px;
       }
 
       .summary-card .value {
         font-size: 22px;
       }
 
+      .standings {
+        padding: 12px;
+      }
+
       th, td {
-        padding: 7px 4px;
-        font-size: 13px;
+        padding: 8px 5px;
+        font-size: 12px;
+      }
+
+      .mobile-bottom {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 10px 10px calc(10px + var(--safe-bottom));
+        background: rgba(255, 255, 255, 0.92);
+        border-top: 1px solid var(--line);
+        backdrop-filter: blur(10px);
+        z-index: 10;
+      }
+
+      .mobile-bottom button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .top-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-name {
+        font-size: 15px;
+      }
+
+      .score-input {
+        width: 64px;
       }
     }
 
@@ -439,7 +640,7 @@
         box-shadow: none;
       }
 
-      .top-actions, .match-actions {
+      .top-actions, .match-actions, .mobile-bottom, .score-hint {
         display: none !important;
       }
 
@@ -455,6 +656,14 @@
         break-inside: avoid;
         page-break-inside: avoid;
       }
+
+      .table-scroll {
+        overflow: visible;
+      }
+
+      table {
+        min-width: 0;
+      }
     }
   </style>
 </head>
@@ -462,12 +671,13 @@
   <div class="page">
     <header>
       <h1>오늘 배드민턴 복식 대진표</h1>
-      <p>오늘 경기 전용 · 승리 +3점 / 패배 -3점 · 전원 5경기 출전</p>
+      <p>오늘 경기 전용 · 승리 +3점 / 패배 -3점 · 스코어와 득실까지 기록</p>
     </header>
 
     <div class="top-actions">
       <button class="btn-primary" onclick="window.print()">인쇄하기</button>
       <button onclick="scrollToStandings()">오늘 순위 보기</button>
+      <button onclick="scrollToNextIncomplete()">다음 미입력 경기</button>
       <button class="btn-danger" onclick="resetAll()">오늘 기록 초기화</button>
     </div>
 
@@ -496,34 +706,44 @@
       <aside class="side">
         <section class="standings" id="standings">
           <h2>오늘 순위</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>순위</th>
-                <th>이름</th>
-                <th>점수</th>
-                <th>승</th>
-                <th>패</th>
-                <th>경기</th>
-              </tr>
-            </thead>
-            <tbody id="standingsBody"></tbody>
-          </table>
-          <p class="note">동점 기준: 점수 → 승수 → 패수 적은 순 → 이름순</p>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>순위</th>
+                  <th>이름</th>
+                  <th>점수</th>
+                  <th>승</th>
+                  <th>패</th>
+                  <th>득실</th>
+                  <th>득점</th>
+                  <th>실점</th>
+                  <th>경기</th>
+                </tr>
+              </thead>
+              <tbody id="standingsBody"></tbody>
+            </table>
+          </div>
+          <p class="note">동점 기준: 점수 → 승수 → 득실 → 득점 → 패수 적은 순 → 이름순</p>
         </section>
 
         <section class="mini">
           <h3>운영 방식</h3>
           <ul>
-            <li>이긴 팀 2명은 각각 +3점</li>
-            <li>진 팀 2명은 각각 -3점</li>
-            <li>잘못 입력했으면 해당 경기의 ‘취소’ 버튼</li>
+            <li>스코어 입력 후 ‘점수로 반영’을 누르면 승패가 자동 반영됨</li>
+            <li>왼쪽 승/오른쪽 승만 눌러도 순위 계산 가능</li>
+            <li>이긴 팀 2명은 각각 +3점, 진 팀 2명은 각각 -3점</li>
             <li>기록은 이 기기 브라우저에만 임시 저장됨</li>
           </ul>
         </section>
       </aside>
     </main>
   </div>
+
+  <nav class="mobile-bottom" aria-label="모바일 빠른 이동">
+    <button class="btn-primary" onclick="scrollToNextIncomplete()">다음 경기</button>
+    <button onclick="scrollToStandings()">순위 보기</button>
+  </nav>
 
   <!-- 실시간 공유 저장소 (Firebase) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -626,7 +846,7 @@
       }
     ];
 
-    const storageKey = "badminton-today-results-v1";
+    const storageKey = "badminton-today-results-score-v2";
     let results = loadResults();
 
     function matchId(roundIndex, matchIndex) {
@@ -675,7 +895,18 @@
           } catch (error) {
             /* 캐시 저장 실패는 무시 */
           }
-          render();
+          // 점수 입력칸에 타이핑 중이면 카드 전체를 다시 그리지 않아 포커스/커서를 보존
+          const active = document.activeElement;
+          const typing =
+            active &&
+            active.classList &&
+            active.classList.contains("score-input");
+          if (typing) {
+            renderStandings();
+            renderCompletedCount();
+          } else {
+            render();
+          }
         });
       } catch (error) {
         console.error("실시간 공유 연결 실패:", error);
@@ -694,34 +925,74 @@
       return `${team[0]} + ${team[1]}`;
     }
 
+    function getResult(id) {
+      return results[id] || {};
+    }
+
     function renderRounds() {
       const container = document.getElementById("rounds");
 
       container.innerHTML = rounds.map((round, roundIndex) => {
-        const completedInRound = round.matches.filter((_, matchIndex) => results[matchId(roundIndex, matchIndex)]).length;
+        const completedInRound = round.matches.filter((_, matchIndex) => getResult(matchId(roundIndex, matchIndex)).winner).length;
         const statusBadge = completedInRound === round.matches.length
           ? `<span class="completed-badge">완료</span>`
           : `<span class="empty-badge">${completedInRound}/${round.matches.length}</span>`;
 
         const matchHtml = round.matches.map((match, matchIndex) => {
           const id = matchId(roundIndex, matchIndex);
-          const result = results[id];
-          const leftClass = result === "left" ? "winner" : result === "right" ? "loser" : "";
-          const rightClass = result === "right" ? "winner" : result === "left" ? "loser" : "";
+          const result = getResult(id);
+          const leftClass = result.winner === "left" ? "winner" : result.winner === "right" ? "loser" : "";
+          const rightClass = result.winner === "right" ? "winner" : result.winner === "left" ? "loser" : "";
+          const leftScore = Number.isFinite(result.leftScore) ? result.leftScore : "";
+          const rightScore = Number.isFinite(result.rightScore) ? result.rightScore : "";
 
           return `
-            <article class="match">
+            <article class="match" id="${id}">
               <div class="court-name">${match.court}</div>
               <div class="teams">
-                <div class="team ${leftClass}">${teamText(match.left)}</div>
+                <div class="team-box ${leftClass}">
+                  <div class="team-name">${teamText(match.left)}</div>
+                  <div class="score-input-wrap">
+                    <span class="score-label">점수</span>
+                    <input
+                      class="score-input"
+                      id="${id}-leftScore"
+                      type="number"
+                      inputmode="numeric"
+                      min="0"
+                      max="99"
+                      value="${leftScore}"
+                      aria-label="${teamText(match.left)} 점수"
+                      oninput="saveScoreOnly('${id}')"
+                    />
+                  </div>
+                </div>
                 <div class="vs">VS</div>
-                <div class="team ${rightClass}">${teamText(match.right)}</div>
+                <div class="team-box ${rightClass}">
+                  <div class="team-name">${teamText(match.right)}</div>
+                  <div class="score-input-wrap">
+                    <span class="score-label">점수</span>
+                    <input
+                      class="score-input"
+                      id="${id}-rightScore"
+                      type="number"
+                      inputmode="numeric"
+                      min="0"
+                      max="99"
+                      value="${rightScore}"
+                      aria-label="${teamText(match.right)} 점수"
+                      oninput="saveScoreOnly('${id}')"
+                    />
+                  </div>
+                </div>
               </div>
               <div class="match-actions">
+                <button class="btn-score" onclick="applyScoreResult('${id}')">점수로 반영</button>
                 <button class="btn-win-left" onclick="setResult('${id}', 'left')">왼쪽 승</button>
                 <button class="btn-win-right" onclick="setResult('${id}', 'right')">오른쪽 승</button>
                 <button class="btn-clear" onclick="clearResult('${id}')">취소</button>
               </div>
+              <p class="score-hint">점수 입력 후 ‘점수로 반영’을 누르면 승패와 득실이 함께 계산돼요.</p>
             </article>
           `;
         }).join("");
@@ -744,83 +1015,70 @@
       }).join("");
     }
 
-    function calculateStandings() {
-      const table = {};
-      players.forEach(name => {
-        table[name] = { name, score: 0, wins: 0, losses: 0, games: 0 };
-      });
-
-      rounds.forEach((round, roundIndex) => {
-        round.matches.forEach((match, matchIndex) => {
-          const result = results[matchId(roundIndex, matchIndex)];
-          if (!result) return;
-
-          const winners = result === "left" ? match.left : match.right;
-          const losers = result === "left" ? match.right : match.left;
-
-          winners.forEach(name => {
-            table[name].score += 3;
-            table[name].wins += 1;
-            table[name].games += 1;
-          });
-
-          losers.forEach(name => {
-            table[name].score -= 3;
-            table[name].losses += 1;
-            table[name].games += 1;
-          });
-        });
-      });
-
-      return Object.values(table).sort((a, b) => {
-        if (b.score !== a.score) return b.score - a.score;
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        if (a.losses !== b.losses) return a.losses - b.losses;
-        return a.name.localeCompare(b.name, "ko");
-      });
+    function parseScoreValue(value) {
+      if (value === "" || value === null || value === undefined) return null;
+      const number = Number(value);
+      if (!Number.isFinite(number)) return null;
+      return Math.max(0, Math.min(99, Math.round(number)));
     }
 
-    function renderStandings() {
-      const tbody = document.getElementById("standingsBody");
-      const standings = calculateStandings();
+    function readScoreInputs(id) {
+      const leftInput = document.getElementById(`${id}-leftScore`);
+      const rightInput = document.getElementById(`${id}-rightScore`);
 
-      let lastScore = null;
-      let lastWins = null;
-      let lastLosses = null;
-      let rank = 0;
-      let shownRank = 0;
-
-      tbody.innerHTML = standings.map((row) => {
-        rank += 1;
-        const sameAsAbove = row.score === lastScore && row.wins === lastWins && row.losses === lastLosses;
-        if (!sameAsAbove) shownRank = rank;
-        lastScore = row.score;
-        lastWins = row.wins;
-        lastLosses = row.losses;
-
-        const scoreClass = row.score > 0 ? "score-plus" : row.score < 0 ? "score-minus" : "score-zero";
-        const scoreText = row.score > 0 ? `+${row.score}` : `${row.score}`;
-
-        return `
-          <tr>
-            <td class="rank">${shownRank}</td>
-            <td class="name">${row.name}</td>
-            <td class="${scoreClass}">${scoreText}</td>
-            <td>${row.wins}</td>
-            <td>${row.losses}</td>
-            <td>${row.games}</td>
-          </tr>
-        `;
-      }).join("");
+      return {
+        leftScore: leftInput ? parseScoreValue(leftInput.value) : null,
+        rightScore: rightInput ? parseScoreValue(rightInput.value) : null
+      };
     }
 
-    function renderCompletedCount() {
-      const count = Object.keys(results).filter(key => results[key]).length;
-      document.getElementById("completedCount").textContent = count;
+    function saveScoreOnly(id) {
+      const scores = readScoreInputs(id);
+      const previous = getResult(id);
+      results[id] = {
+        ...previous,
+        leftScore: scores.leftScore,
+        rightScore: scores.rightScore
+      };
+      saveResults();
+      renderStandings();
+      renderCompletedCount();
+    }
+
+    function applyScoreResult(id) {
+      const scores = readScoreInputs(id);
+
+      if (scores.leftScore === null || scores.rightScore === null) {
+        alert("양쪽 점수를 모두 입력해 주세요.");
+        return;
+      }
+
+      if (scores.leftScore === scores.rightScore) {
+        alert("동점은 승패를 정할 수 없어요. 점수를 다시 입력해 주세요.");
+        return;
+      }
+
+      results[id] = {
+        leftScore: scores.leftScore,
+        rightScore: scores.rightScore,
+        winner: scores.leftScore > scores.rightScore ? "left" : "right"
+      };
+
+      saveResults();
+      render();
     }
 
     function setResult(id, side) {
-      results[id] = side;
+      const scores = readScoreInputs(id);
+      const previous = getResult(id);
+
+      results[id] = {
+        ...previous,
+        leftScore: scores.leftScore,
+        rightScore: scores.rightScore,
+        winner: side
+      };
+
       saveResults();
       render();
     }
@@ -831,8 +1089,110 @@
       render();
     }
 
+    function calculateStandings() {
+      const table = {};
+      players.forEach(name => {
+        table[name] = {
+          name,
+          score: 0,
+          wins: 0,
+          losses: 0,
+          games: 0,
+          pointsFor: 0,
+          pointsAgainst: 0,
+          pointDiff: 0
+        };
+      });
+
+      rounds.forEach((round, roundIndex) => {
+        round.matches.forEach((match, matchIndex) => {
+          const result = getResult(matchId(roundIndex, matchIndex));
+          if (!result.winner) return;
+
+          const winners = result.winner === "left" ? match.left : match.right;
+          const losers = result.winner === "left" ? match.right : match.left;
+
+          const hasScores = Number.isFinite(result.leftScore) && Number.isFinite(result.rightScore);
+          const leftScore = hasScores ? result.leftScore : 0;
+          const rightScore = hasScores ? result.rightScore : 0;
+
+          const winnerPoints = hasScores ? (result.winner === "left" ? leftScore : rightScore) : 0;
+          const loserPoints = hasScores ? (result.winner === "left" ? rightScore : leftScore) : 0;
+
+          winners.forEach(name => {
+            table[name].score += 3;
+            table[name].wins += 1;
+            table[name].games += 1;
+            table[name].pointsFor += winnerPoints;
+            table[name].pointsAgainst += loserPoints;
+          });
+
+          losers.forEach(name => {
+            table[name].score -= 3;
+            table[name].losses += 1;
+            table[name].games += 1;
+            table[name].pointsFor += loserPoints;
+            table[name].pointsAgainst += winnerPoints;
+          });
+        });
+      });
+
+      Object.values(table).forEach(row => {
+        row.pointDiff = row.pointsFor - row.pointsAgainst;
+      });
+
+      return Object.values(table).sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        if (b.pointDiff !== a.pointDiff) return b.pointDiff - a.pointDiff;
+        if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+        if (a.losses !== b.losses) return a.losses - b.losses;
+        return a.name.localeCompare(b.name, "ko");
+      });
+    }
+
+    function renderStandings() {
+      const tbody = document.getElementById("standingsBody");
+      const standings = calculateStandings();
+
+      let lastKey = null;
+      let rank = 0;
+      let shownRank = 0;
+
+      tbody.innerHTML = standings.map((row) => {
+        rank += 1;
+        const key = `${row.score}/${row.wins}/${row.pointDiff}/${row.pointsFor}/${row.losses}`;
+        if (key !== lastKey) shownRank = rank;
+        lastKey = key;
+
+        const scoreClass = row.score > 0 ? "score-plus" : row.score < 0 ? "score-minus" : "score-zero";
+        const diffClass = row.pointDiff > 0 ? "score-plus" : row.pointDiff < 0 ? "score-minus" : "score-zero";
+        const scoreText = row.score > 0 ? `+${row.score}` : `${row.score}`;
+        const diffText = row.pointDiff > 0 ? `+${row.pointDiff}` : `${row.pointDiff}`;
+
+        return `
+          <tr>
+            <td class="rank">${shownRank}</td>
+            <td class="name">${row.name}</td>
+            <td class="${scoreClass}">${scoreText}</td>
+            <td>${row.wins}</td>
+            <td>${row.losses}</td>
+            <td class="${diffClass}">${diffText}</td>
+            <td>${row.pointsFor}</td>
+            <td>${row.pointsAgainst}</td>
+            <td>${row.games}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderCompletedCount() {
+      const count = Object.values(results).filter(result => result && result.winner).length;
+      document.getElementById("completedCount").textContent = count;
+    }
+
     function resetAll() {
-      const ok = confirm("오늘 입력한 승패 기록을 전부 지울까요?");
+      const ok = confirm("오늘 입력한 승패와 점수 기록을 전부 지울까요?");
       if (!ok) return;
       results = {};
       saveResults();
@@ -841,6 +1201,20 @@
 
     function scrollToStandings() {
       document.getElementById("standings").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function scrollToNextIncomplete() {
+      for (let roundIndex = 0; roundIndex < rounds.length; roundIndex += 1) {
+        for (let matchIndex = 0; matchIndex < rounds[roundIndex].matches.length; matchIndex += 1) {
+          const id = matchId(roundIndex, matchIndex);
+          if (!getResult(id).winner) {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+        }
+      }
+      alert("모든 경기가 입력됐어요.");
+      scrollToStandings();
     }
 
     function render() {
