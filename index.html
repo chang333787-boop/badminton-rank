@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>오늘의 배드민턴 순위표 v4</title>
+<title>오늘의 배드민턴 순위표 v5</title>
 <style>
 :root {
   --bg:#f4f7fb;
@@ -23,6 +23,11 @@
   --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 * { box-sizing:border-box; }
+html, body {
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+}
 body {
   margin:0;
   background:linear-gradient(180deg,#eaf2ff 0,#f8fafc 260px,var(--bg));
@@ -56,9 +61,12 @@ input {
 }
 input:focus { outline:3px solid rgba(37,99,235,.18); border-color:var(--blue); }
 .app {
+  width:100%;
   max-width:1180px;
+  min-width:0;
   margin:0 auto;
   padding:14px 12px calc(90px + var(--safe-bottom));
+  overflow-x:hidden;
 }
 .hero {
   background:linear-gradient(135deg,#1d4ed8,#38bdf8);
@@ -78,7 +86,8 @@ input:focus { outline:3px solid rgba(37,99,235,.18); border-color:var(--blue); }
 .between { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
 .grid { display:grid; gap:12px; }
 .grid4 { grid-template-columns:repeat(4,1fr); }
-.layout { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:14px; align-items:start; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:14px; align-items:start; min-width:0; }
+.layout > * { min-width:0; }
 .side { position:sticky; top:10px; }
 .card {
   background:var(--card);
@@ -87,6 +96,7 @@ input:focus { outline:3px solid rgba(37,99,235,.18); border-color:var(--blue); }
   padding:16px;
   box-shadow:var(--shadow);
   margin-bottom:12px;
+  min-width:0;
 }
 .card h2,.card h3 { margin:0 0 10px; letter-spacing:-.04em; }
 .metric {
@@ -124,6 +134,7 @@ input:focus { outline:3px solid rgba(37,99,235,.18); border-color:var(--blue); }
   box-shadow:var(--shadow);
   margin-bottom:12px;
   overflow:hidden;
+  min-width:0;
 }
 .round-head {
   padding:14px 16px;
@@ -214,15 +225,19 @@ input:focus { outline:3px solid rgba(37,99,235,.18); border-color:var(--blue); }
 .result-msg.ok { color:#166534; }
 .result-msg.err { color:#991b1b; }
 .table-wrap {
-  overflow:auto;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
   border:1px solid var(--line);
   border-radius:18px;
   background:#fff;
+  -webkit-overflow-scrolling:touch;
 }
 table {
   width:100%;
   border-collapse:collapse;
-  min-width:680px;
+  min-width:560px;
 }
 th,td {
   padding:9px 8px;
@@ -262,24 +277,43 @@ td.left { text-align:left; font-weight:950; }
   .grid4 { grid-template-columns:1fr 1fr; }
 }
 @media(max-width:660px) {
-  .app { padding:10px 9px calc(86px + var(--safe-bottom)); }
-  .hero { border-radius:23px; padding:18px; }
-  .card,.round-card { border-radius:21px; }
+  body { overflow-x:hidden; }
+  .app {
+    width:100%;
+    max-width:100%;
+    padding:10px 9px calc(86px + var(--safe-bottom));
+  }
+  .hero {
+    width:100%;
+    border-radius:23px;
+    padding:16px;
+  }
+  .hero h1 { font-size:28px; line-height:1.12; }
+  .hero p { font-size:15px; line-height:1.35; }
+  .card,.round-card { width:100%; max-width:100%; border-radius:21px; }
+  .metric { min-width:0; padding:13px; }
+  .metric .value { font-size:28px; }
   .court-grid { grid-template-columns:1fr; }
-  .match { border-right:0; border-bottom:1px solid var(--line); }
+  .match { border-right:0; border-bottom:1px solid var(--line); padding:12px; }
   .match:last-child { border-bottom:0; }
   .teams { grid-template-columns:1fr; gap:7px; }
   .vs { font-size:13px; min-height:16px; }
   .team {
-    grid-template-columns:1fr 76px;
+    width:100%;
+    min-width:0;
+    grid-template-columns:minmax(0,1fr) 72px;
     align-items:center;
   }
   .team-name {
+    min-width:0;
     justify-content:flex-start;
     text-align:left;
     min-height:0;
+    overflow-wrap:anywhere;
   }
-  input { font-size:20px; }
+  input { font-size:20px; min-width:0; }
+  table { min-width:500px; }
+  th,td { padding:8px 6px; font-size:12px; }
   .mobile-bottom {
     position:fixed;
     left:0; right:0; bottom:0;
@@ -309,7 +343,7 @@ td.left { text-align:left; font-weight:950; }
     <div class="between">
       <div>
         <h1>🏸 오늘의 배드민턴 순위표</h1>
-        <p>10라운드 · 2코트 · 총 20경기 · 입력 순서 고정 · 승수/득실 중심 순위</p>
+        <p>10라운드 · 2코트 · 총 20경기 · 모바일 폭 고정 · 승수/득실 중심 순위</p>
       </div>
       <div class="row no-print">
         <button class="btn-green" id="printBtn">인쇄</button>
