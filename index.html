@@ -1,101 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>배드민턴 대진표 (2026-07-22)</title>
+<title>배드민턴 대진표 · 실시간 스코어</title>
 <style>
-  * { box-sizing: border-box; }
-  body { font-family: "맑은 고딕","Malgun Gothic",sans-serif; margin: 20px; color:#1a2233; background:#f4f6fb; }
-  h1 { font-size: 20px; margin: 0 0 4px; }
-  .sub { color:#67708a; font-size:13px; margin-bottom:16px; }
-  .wrap { display:flex; gap:22px; align-items:flex-start; flex-wrap:wrap; }
-  .court { background:#fff; border:1px solid #d5dbe8; border-radius:10px; padding:14px 16px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .court h2 { text-align:center; font-size:16px; margin:0 0 10px; padding:6px 0; border:2px solid #2f3b52; border-radius:6px; }
-  table { border-collapse:collapse; }
-  td { padding:5px 8px; font-size:14px; white-space:nowrap; }
-  .team { border:1px solid #cfd6e4; border-radius:5px; padding:5px 10px; text-align:center; min-width:118px; }
-  .cbx { width:20px; height:20px; cursor:pointer; }
-  .mid { color:#9aa3b8; font-weight:700; padding:0 4px; }
-  .cnt-row td { padding-top:8px; font-weight:700; font-size:15px; color:#2f6fd6; text-align:center; }
-  .roster { background:#fff; border:1px solid #d5dbe8; border-radius:10px; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
-  .roster h3 { margin:0 0 8px; font-size:14px; text-align:center; }
-  .roster .name { border:1px solid #cfd6e4; border-radius:5px; padding:5px 12px; margin:4px 0; font-size:14px; text-align:center; }
-  .roster.left .name { background:#cfe0f6; }
-  .note { margin-top:18px; font-size:12px; color:#8a93a8; max-width:640px; line-height:1.6; }
-  @media print { body{background:#fff;margin:6mm;} .court,.roster{box-shadow:none;} }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:"맑은 고딕","Malgun Gothic",sans-serif; margin:0; padding:14px; color:#172033; background:#eef2f9; }
+  h1 { font-size:18px; margin:0 0 2px; }
+  .sub { color:#67708a; font-size:12px; margin-bottom:12px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; background:#cbd3e2; margin-left:4px; vertical-align:middle; }
+  .dot.on { background:#16a34a; } .dot.off { background:#dc2626; }
+  .btn { border:1px solid #cfd6e4; background:#fff; border-radius:8px; padding:6px 12px; font-size:13px; cursor:pointer; }
+  .btn:active { background:#eef2f9; }
+
+  /* 팀 스코어보드 */
+  .board { display:flex; align-items:center; justify-content:center; gap:10px; background:#fff;
+           border:1px solid #d5dbe8; border-radius:14px; padding:12px 14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .board .side { text-align:center; flex:1; }
+  .board .side .lab { font-size:12px; color:#67708a; }
+  .board .side .big { font-weight:800; line-height:1.1; }
+  .board .side .big .n { font-size:30px; }
+  .board .side .big .u { font-size:14px; }
+  .board .A .big { color:#2563eb; } .board .B .big { color:#dc2626; }
+  .board .vs { font-size:13px; color:#9aa3b8; font-weight:700; }
+  .toolbar { display:flex; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
+
+  .card { background:#fff; border:1px solid #d5dbe8; border-radius:14px; padding:12px 14px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .card h3 { margin:0 0 10px; font-size:14px; }
+
+  /* 개인 리더보드 */
+  .lb-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(115px,1fr)); gap:8px; }
+  .chip { display:flex; align-items:center; justify-content:space-between; gap:6px; border:1px solid #e2e8f0; border-radius:8px; padding:7px 10px; font-size:13px; }
+  .chip.A { background:#eff5ff; } .chip.B { background:#fef2f2; }
+  .chip .nm { font-weight:600; } .chip .rec { font-size:12px; color:#475569; white-space:nowrap; }
+  .chip .rec b { color:#16a34a; } .chip.lead { outline:2px solid #f59e0b; }
+
+  /* 코트 */
+  .courts { display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; }
+  .court { background:#fff; border:1px solid #d5dbe8; border-radius:14px; padding:12px 14px; box-shadow:0 1px 3px rgba(0,0,0,.05); flex:1 1 340px; min-width:0; }
+  .court h2 { text-align:center; font-size:15px; margin:0 0 8px; padding:6px 0; border:2px solid #2f3b52; border-radius:8px; }
+  .legend { font-size:11px; color:#9aa3b8; text-align:center; margin:0 0 6px; }
+  .m { display:grid; grid-template-columns:minmax(0,1fr) 42px 8px 42px minmax(0,1fr) 20px; align-items:center; gap:3px; padding:4px 0; border-bottom:1px dashed #eef2f7; }
+  .pair { font-size:13px; padding:4px 3px; border-radius:6px; word-break:keep-all; }
+  .pair.L { text-align:right; } .pair.R { text-align:left; }
+  .win { background:#dcfce7; font-weight:700; }
+  .sc { width:42px; height:34px; text-align:center; font-size:16px; border:1px solid #cfd6e4; border-radius:7px; padding:0; }
+  .colon { text-align:center; color:#9aa3b8; font-weight:700; }
+  .del { border:none; background:transparent; color:#cbd3e2; font-size:13px; cursor:pointer; padding:0; }
+  .del:hover { color:#dc2626; }
+  .addm { display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-top:8px; padding-top:8px; border-top:1px solid #eef2f7; font-size:12px; }
+  .addm .al { color:#67708a; }
+  .addm select { padding:4px; border:1px solid #cfd6e4; border-radius:6px; font-size:12px; max-width:82px; }
+  .addm .btn { padding:5px 10px; font-size:12px; }
+  .cfoot { display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-top:8px; padding-top:6px; border-top:1px solid #e2e8f0; }
+  .cfoot .l { color:#2563eb; } .cfoot .r { color:#dc2626; }
+
+  /* 명단 관리 (좌우 2칸 고정) */
+  .rgrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .rcol h4 { font-size:13px; margin:0 0 6px; } .rcol .cnt { font-size:11px; color:#9aa3b8; font-weight:400; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .rchip { display:inline-flex; align-items:center; gap:3px; border:1px solid #e2e8f0; border-radius:999px; padding:4px 6px 4px 10px; font-size:12px; }
+  .rchip.A { background:#eff5ff; } .rchip.B { background:#fef2f2; }
+  .rchip .x { border:none; background:transparent; color:#9aa3b8; cursor:pointer; font-size:11px; padding:0 2px; }
+  .rchip .x:hover { color:#dc2626; }
+  .addp { display:flex; gap:4px; }
+  .addp .np { flex:1; min-width:0; border:1px solid #cfd6e4; border-radius:6px; padding:5px 8px; font-size:12px; }
+  .addp .btn { padding:5px 10px; font-size:12px; }
+
+  @media (max-width:720px){ .board .side .big .n{font-size:24px;} h1{font-size:16px;} }
 </style>
+</head>
+<body>
 
-<h1>🏸 배드민턴 대진표</h1>
-<div class="sub">2026-07-22 · 왼쪽 그룹(파랑) vs 오른쪽 그룹 · 체크하면 아래 점수 자동 집계</div>
+<h1>🏸 배드민턴 대진표 · 실시간 스코어 <span id="net" class="dot"></span></h1>
+<div class="sub">2026-07-22 · <b style="color:#2563eb">왼쪽=A팀</b> vs <b style="color:#dc2626">오른쪽=B팀</b> · 점수 입력 → 승패·승수 자동 집계 · 같은 링크끼리 실시간 공유</div>
 
-<div class="wrap">
-  <div class="roster left"><h3>명단 A</h3><div id="rosterA"></div></div>
-
-  <div class="court"><h2>6코트</h2><table id="court6"></table></div>
-  <div class="court"><h2>5코트</h2><table id="court5"></table></div>
-
-  <div class="roster"><h3>명단 B</h3><div id="rosterB"></div></div>
+<div class="board">
+  <div class="side A"><div class="lab">A팀 (왼쪽)</div><div class="big"><span class="n" id="Aw">0</span><span class="u">승</span> <span class="n" id="Al">0</span><span class="u">패</span></div></div>
+  <div class="vs">VS</div>
+  <div class="side B"><div class="lab">B팀 (오른쪽)</div><div class="big"><span class="n" id="Bw">0</span><span class="u">승</span> <span class="n" id="Bl">0</span><span class="u">패</span></div></div>
 </div>
+<div class="toolbar"><button class="btn" id="resetBtn">점수 전체 초기화</button></div>
 
-<p class="note">
-  ※ 용현정 동명2인 → 명단A는 <b>용현정a</b>, 명단B는 <b>용현정b</b>로 표기.<br>
-  ※ 참고: 원본 이미지에서 대진 경기엔 <b>김진호</b>가 들어가 있는데 명단B 칸엔 <b>용현정b</b>가 적혀 있어요(김진호 없음). 이미지 그대로 옮겼으니 둘 중 실제 맞는 이름으로 칸을 눌러 바로 고치면 됩니다.<br>
-  ※ 이름 칸은 눌러서 즉시 수정 가능(명단만 빠르게 교체용).
-</p>
+<div class="card"><h3>🏆 개인 승수 (실시간)</h3><div class="lb-grid" id="leaderboard"></div></div>
 
+<div class="courts" id="courts"></div>
+
+<div class="card" id="rosterMgmt"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-const court6 = [
- ["김성곤","최신웅","조영재","박지섭"],
- ["김성곤","박강호","조영재","주성모"],
- ["최신웅","박강호","박지섭","주성모"],
- ["여원미","박복균","양회욱","김진호"],
- ["여원미","용현정a","박희수","김예슬"],
- ["한지윤","박강호","양회욱","박희수"],
- ["박복균","용현정a","김진호","이은미"],
- ["박복균","서민희","양회욱","이민석"],
- ["한지윤","서민희","이은미","이민석"],
- ["용현정a","서민희","김예슬","이민석"],
-];
-const court5 = [
- ["김성곤","최신웅","조영재","박지섭"],
- ["김성곤","박강호","조영재","주성모"],
- ["최신웅","박강호","박지섭","주성모"],
- ["박복균","용현정a","박희수","김진호"],
- ["용현정a","한지윤","이은미","박희수"],
- ["한지윤","서민희","이은미","이민석"],
- ["김진호","박복균","여원미","양회욱"],
- ["여원미","주성모","박희수","박지섭"],
- ["김성곤","한지윤","조영재","김예슬"],
- ["최신웅","박희수","주성모","박강호"],
-];
-const rosterA = ["김성곤","최신웅","박강호","여원미","박복균","용현정a","한지윤","서민희"];
-const rosterB = ["조영재","박지섭","주성모","양회욱","박희수","김예슬","용현정b","이은미","이민석"];
+const STORAGE_KEY = "badminton_daily_matchboard_2026_v2";
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-function buildCourt(id, data){
-  const t = document.getElementById(id);
-  data.forEach(m=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      `<td><input type="checkbox" class="cbx a"></td>`+
-      `<td class="team" contenteditable>${m[0]} · ${m[1]}</td>`+
-      `<td class="mid">:</td>`+
-      `<td class="team" contenteditable>${m[2]} · ${m[3]}</td>`+
-      `<td><input type="checkbox" class="cbx b"></td>`;
-    t.appendChild(tr);
-  });
-  const tr = document.createElement("tr");
-  tr.className="cnt-row";
-  tr.innerHTML = `<td class="ca">0</td><td></td><td></td><td></td><td class="cb">0</td>`;
-  t.appendChild(tr);
-  t.addEventListener("change", ()=>{
-    t.querySelector(".ca").textContent = t.querySelectorAll(".a:checked").length;
-    t.querySelector(".cb").textContent = t.querySelectorAll(".b:checked").length;
+/* ---------- 초기 데이터 (이미지 대진: 왼쪽 A팀 · 오른쪽 B팀) ---------- */
+function seedState(){
+  const c6 = [
+    ["김성곤","최신웅","조영재","박지섭"],["김성곤","박강호","조영재","주성모"],
+    ["최신웅","박강호","박지섭","주성모"],["여원미","박복균","양회욱","김진호"],
+    ["여원미","용현정a","박희수","김예슬"],["한지윤","박강호","양회욱","박희수"],
+    ["박복균","용현정a","김진호","이은미"],["박복균","서민희","양회욱","이민석"],
+    ["한지윤","서민희","이은미","이민석"],["용현정a","서민희","김예슬","이민석"],
+  ];
+  const c5 = [
+    ["김성곤","최신웅","조영재","박지섭"],["김성곤","박강호","조영재","주성모"],
+    ["최신웅","박강호","박지섭","주성모"],["박복균","용현정a","박희수","김진호"],
+    ["용현정a","한지윤","이은미","박희수"],["한지윤","서민희","이은미","이민석"],
+    ["김진호","박복균","여원미","양회욱"],["여원미","주성모","박희수","박지섭"],
+    ["김성곤","한지윤","조영재","김예슬"],["최신웅","박희수","주성모","박강호"],
+  ];
+  let seq = 1;
+  const mk = arr => arr.map(m=>({ id:"m"+(seq++), a1:m[0], a2:m[1], b1:m[2], b2:m[3], l:null, r:null }));
+  return {
+    rosterA: ["김성곤","최신웅","박강호","여원미","박복균","용현정a","한지윤","서민희"],
+    rosterB: ["조영재","박지섭","주성모","양회욱","박희수","김예슬","용현정b","이은미","이민석","김진호"],
+    courts: [ {key:"6", name:"6코트", matches:mk(c6)}, {key:"5", name:"5코트", matches:mk(c5)} ],
+    seq
+  };
+}
+let state = seedState();
+let cloudRef=null, applyingRemote=false;
+
+/* ---------- 헬퍼 ---------- */
+function findMatch(id){ for(const c of state.courts){ const m=c.matches.find(x=>x.id===id); if(m) return m; } return null; }
+function winnerOf(m){ const l=m.l, r=m.r; if(l==null||r==null||l===r) return null; return l>r?"l":"r"; }
+function set(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+
+/* ---------- 렌더: 코트 ---------- */
+function renderCourts(){
+  const optA = state.rosterA.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  const optB = state.rosterB.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  document.getElementById("courts").innerHTML = state.courts.map(court=>{
+    const rows = court.matches.map(m=>`
+      <div class="m" data-mid="${m.id}">
+        <div class="pair L">${esc(m.a1)} · ${esc(m.a2)}</div>
+        <input class="sc" inputmode="numeric" type="number" min="0" data-mid="${m.id}" data-side="l" value="${m.l==null?'':m.l}">
+        <div class="colon">:</div>
+        <input class="sc" inputmode="numeric" type="number" min="0" data-mid="${m.id}" data-side="r" value="${m.r==null?'':m.r}">
+        <div class="pair R">${esc(m.b1)} · ${esc(m.b2)}</div>
+        <button class="del" data-del-match="${m.id}" title="경기 삭제">✕</button>
+      </div>`).join("");
+    return `<div class="court" data-court="${court.key}">
+      <h2>${esc(court.name)}</h2>
+      <div class="legend">A팀(왼쪽) 점수 : B팀(오른쪽) 점수</div>
+      <div class="mlist">${rows}</div>
+      <div class="addm" data-court="${court.key}">
+        <span class="al">＋경기</span>
+        <select class="s-a1"><option value="">A①</option>${optA}</select>
+        <select class="s-a2"><option value="">A②</option>${optA}</select>
+        <span class="colon">:</span>
+        <select class="s-b1"><option value="">B①</option>${optB}</select>
+        <select class="s-b2"><option value="">B②</option>${optB}</select>
+        <button class="btn add-match">추가</button>
+      </div>
+      <div class="cfoot"><span class="l">A팀 <span class="cw">0</span>승</span><span class="r"><span class="crw">0</span>승 B팀</span></div>
+    </div>`;
+  }).join("");
+}
+
+/* ---------- 렌더: 명단 ---------- */
+function renderRosters(){
+  const col = (title, arr, team) => `
+    <div class="rcol">
+      <h4>${title} <span class="cnt">${arr.length}명</span></h4>
+      <div class="chips">${arr.map(n=>`<span class="rchip ${team}">${esc(n)}<button class="x" data-del-player="${team}" data-name="${esc(n)}" title="삭제">✕</button></span>`).join("")}</div>
+      <div class="addp"><input class="np" data-team="${team}" placeholder="이름 추가"><button class="btn addp-btn" data-team="${team}">추가</button></div>
+    </div>`;
+  document.getElementById("rosterMgmt").innerHTML =
+    `<h3>👥 명단 관리 (선수 추가·삭제)</h3><div class="rgrid">${col("A팀 (왼쪽)",state.rosterA,"A")}${col("B팀 (오른쪽)",state.rosterB,"B")}</div>`;
+}
+
+/* ---------- 렌더: 집계 ---------- */
+function renderInputs(){
+  document.querySelectorAll("input.sc").forEach(inp=>{
+    if(inp===document.activeElement) return;
+    const m=findMatch(inp.dataset.mid); if(!m) return;
+    const v=m[inp.dataset.side]; inp.value=(v==null?"":v);
   });
 }
-function buildRoster(id, names){
-  const c = document.getElementById(id);
-  names.forEach(n=>{ const d=document.createElement("div"); d.className="name"; d.contentEditable=true; d.textContent=n; c.appendChild(d); });
+function renderTallies(){
+  const rec={}, ens=n=>(rec[n]=rec[n]||{w:0,l:0});
+  const leftNames=new Set(); let A=0,B=0;
+  state.courts.forEach(c=>{
+    let cl=0,cr=0;
+    c.matches.forEach(m=>{
+      leftNames.add(m.a1); leftNames.add(m.a2);
+      const w=winnerOf(m); if(!w) return;
+      if(w==="l"){ cl++; A++; ens(m.a1).w++; ens(m.a2).w++; ens(m.b1).l++; ens(m.b2).l++; }
+      else       { cr++; B++; ens(m.b1).w++; ens(m.b2).w++; ens(m.a1).l++; ens(m.a2).l++; }
+    });
+    const el=document.querySelector('.court[data-court="'+c.key+'"]');
+    if(el){ el.querySelector(".cw").textContent=cl; el.querySelector(".crw").textContent=cr; }
+  });
+  set("Aw",A); set("Al",B); set("Bw",B); set("Bl",A);   // A: A승/B가 이긴 만큼 A패
+
+  document.querySelectorAll(".m").forEach(row=>{
+    const m=findMatch(row.dataset.mid), w=m?winnerOf(m):null;
+    row.querySelector(".pair.L").classList.toggle("win", w==="l");
+    row.querySelector(".pair.R").classList.toggle("win", w==="r");
+  });
+
+  const all=[...new Set([...state.rosterA, ...state.rosterB, ...Object.keys(rec)])];
+  all.forEach(ens);
+  const teamOf=n=> state.rosterA.includes(n)?"A": state.rosterB.includes(n)?"B": (leftNames.has(n)?"A":"B");
+  all.sort((x,y)=> rec[y].w-rec[x].w || rec[x].l-rec[y].l || x.localeCompare(y,"ko"));
+  const top = all.length ? rec[all[0]].w : 0;
+  document.getElementById("leaderboard").innerHTML = all.map(n=>{
+    const t=teamOf(n), lead=(top>0 && rec[n].w===top)?" lead":"";
+    return `<div class="chip ${t}${lead}"><span class="nm">${esc(n)}</span><span class="rec"><b>${rec[n].w}승</b> ${rec[n].l}패</span></div>`;
+  }).join("");
 }
-buildCourt("court6", court6);
-buildCourt("court5", court5);
-buildRoster("rosterA", rosterA);
-buildRoster("rosterB", rosterB);
+function renderAll(){ renderCourts(); renderRosters(); renderTallies(); }
+
+/* ---------- 이벤트 (위임) ---------- */
+document.getElementById("courts").addEventListener("input", e=>{
+  const t=e.target; if(!t.classList.contains("sc")) return;
+  const m=findMatch(t.dataset.mid); if(!m) return;
+  m[t.dataset.side] = t.value===""?null:Math.max(0, parseInt(t.value,10)||0);
+  pushCloud(); renderTallies();
+});
+document.getElementById("courts").addEventListener("click", e=>{
+  const del=e.target.closest("[data-del-match]");
+  if(del){ const id=del.dataset.delMatch;
+    for(const c of state.courts){ const i=c.matches.findIndex(x=>x.id===id); if(i>=0){ c.matches.splice(i,1); break; } }
+    pushCloud(); renderAll(); return; }
+  const add=e.target.closest(".add-match");
+  if(add){ const box=add.closest(".addm"), ck=box.dataset.court;
+    const a1=box.querySelector(".s-a1").value, a2=box.querySelector(".s-a2").value;
+    const b1=box.querySelector(".s-b1").value, b2=box.querySelector(".s-b2").value;
+    if(!a1||!a2||!b1||!b2){ alert("A①②, B①② 4명을 모두 선택하세요."); return; }
+    if(a1===a2||b1===b2){ alert("같은 팀에서 같은 선수를 두 번 넣을 수 없어요."); return; }
+    const c=state.courts.find(x=>x.key===ck);
+    c.matches.push({ id:"m"+(state.seq++), a1,a2,b1,b2, l:null,r:null });
+    pushCloud(); renderAll();
+  }
+});
+function addPlayer(team, name){
+  name=(name||"").trim(); if(!name) return;
+  const arr = team==="A"?state.rosterA:state.rosterB;
+  if(arr.includes(name)){ alert("이미 있는 이름이에요."); return; }
+  arr.push(name); pushCloud(); renderAll();
+}
+document.getElementById("rosterMgmt").addEventListener("click", e=>{
+  const del=e.target.closest("[data-del-player]");
+  if(del){ const team=del.dataset.delPlayer, name=del.dataset.name;
+    const arr = team==="A"?state.rosterA:state.rosterB;
+    const i=arr.indexOf(name); if(i>=0) arr.splice(i,1);
+    pushCloud(); renderAll(); return; }
+  const add=e.target.closest(".addp-btn");
+  if(add){ const box=add.closest(".addp"); const inp=box.querySelector(".np"); addPlayer(add.dataset.team, inp.value); }
+});
+document.getElementById("rosterMgmt").addEventListener("keydown", e=>{
+  if(e.target.classList.contains("np") && e.key==="Enter"){ addPlayer(e.target.dataset.team, e.target.value); }
+});
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(!confirm("모든 점수를 0으로 초기화할까요? (명단·대진은 유지)")) return;
+  state.courts.forEach(c=>c.matches.forEach(m=>{ m.l=null; m.r=null; }));
+  pushCloud(); renderAll();
+});
+
+/* ---------- Firebase 실시간 공유 ---------- */
+window.FIREBASE_CONFIG = {
+  databaseURL: "https://minton-e2c92-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "minton-e2c92"
+};
+function setNet(on){ document.getElementById("net").className="dot "+(on?"on":"off"); }
+function initCloud(){
+  try{
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+    const db=firebase.database();
+    cloudRef=db.ref(STORAGE_KEY);
+    db.ref(".info/connected").on("value", s=> setNet(!!s.val()));
+    cloudRef.on("value", snap=>{
+      const v=snap.val(); if(!v||!v.courts) return;
+      const act=document.activeElement, typing=act&&act.classList&&act.classList.contains("sc");
+      applyingRemote=true;
+      state={ rosterA:v.rosterA||[], rosterB:v.rosterB||[], courts:v.courts||[], seq:v.seq||1 };
+      if(typing){ renderInputs(); renderTallies(); } else { renderAll(); }
+      applyingRemote=false;
+    });
+  }catch(e){ console.warn("cloud init fail", e); setNet(false); }
+}
+function pushCloud(){
+  if(applyingRemote) return;
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  if(cloudRef){ cloudRef.set({ rosterA:state.rosterA, rosterB:state.rosterB, courts:state.courts, seq:state.seq, ts:Date.now() }); }
+}
+
+/* ---------- 시작 ---------- */
+try{ const cache=localStorage.getItem(STORAGE_KEY); if(cache){ const v=JSON.parse(cache); if(v&&v.courts){ state=v; } } }catch(e){}
+renderAll();
+initCloud();
 </script>
+</body>
+</html>
